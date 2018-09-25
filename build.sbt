@@ -1,12 +1,10 @@
 import AssemblyKeys._
 import ReleaseTransformations._
 import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
-import com.typesafe.sbt.SbtScalariform._
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import sbtassembly.Plugin._
 import sbtunidoc.Plugin.UnidocKeys._
 import scala.collection.JavaConverters._
-import scalariform.formatter.preferences._
 
 def scalaBinaryVersion(scalaVersion: String) = scalaVersion match {
   case version if version startsWith "2.10" => "2.10"
@@ -45,14 +43,12 @@ val jlineVersion = "2.14.3"
 
 val printDependencyClasspath = taskKey[Unit]("Prints location of the dependencies")
 
-val sharedSettings = assemblySettings ++ scalariformSettings ++ Seq(
+val sharedSettings = assemblySettings ++ Seq(
   organization := "com.twitter",
 
   scalaVersion := "2.11.12",
 
   crossScalaVersions := Seq(scalaVersion.value, "2.12.4"),
-
-  ScalariformKeys.preferences := formattingPreferences,
 
   javacOptions ++= Seq("-source", "1.6", "-target", "1.6"),
 
@@ -259,13 +255,6 @@ lazy val scaldingAssembly = Project(
   maple,
   scaldingSerialization
 )
-
-lazy val formattingPreferences = {
-  import scalariform.formatter.preferences._
-  FormattingPreferences().
-    setPreference(AlignParameters, false).
-    setPreference(PreserveSpaceBeforeArguments, true)
-}
 
 lazy val noPublishSettings = Seq(
     publish := (),
@@ -676,53 +665,13 @@ def docsSourcesAndProjects(sv: String): Seq[ProjectReference] =
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
 
-lazy val docSettings = Seq(
-  micrositeName := "Scalding",
-  micrositeDescription := "Scala API for Cascading.",
-  micrositeAuthor := "Scalding's contributors",
-  micrositeHighlightTheme := "atom-one-light",
-  micrositeHomepage := "http://twitter.github.io/scalding",
-  micrositeBaseUrl := "scalding",
-  micrositeDocumentationUrl := "api",
-  micrositeGithubOwner := "twitter",
-  micrositeExtraMdFiles := Map(file("CONTRIBUTING.md") -> "contributing.md"),
-  micrositeGithubRepo := "scalding",
-    micrositePalette := Map(
-    "brand-primary" -> "#5B5988",
-    "brand-secondary" -> "#292E53",
-    "brand-tertiary" -> "#222749",
-    "gray-dark" -> "#49494B",
-    "gray" -> "#7B7B7E",
-    "gray-light" -> "#E5E5E6",
-    "gray-lighter" -> "#F4F3F4",
-    "white-color" -> "#FFFFFF"),
-  autoAPIMappings := true,
-  unidocProjectFilter in (ScalaUnidoc, unidoc) :=
-    inProjects(docsSourcesAndProjects(scalaVersion.value):_*),
-  docsMappingsAPIDir := "api",
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), docsMappingsAPIDir),
-  ghpagesNoJekyll := false,
-  fork in tut := true,
-  fork in (ScalaUnidoc, unidoc) := true,
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
-    "-doc-source-url", "https://github.com/twitter/scalding/tree/develop€{FILE_PATH}.scala",
-    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-diagrams"
-  ),
-  git.remoteRepo := "git@github.com:twitter/scalding.git",
-  includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.yml" | "*.md"
-  )
-
-
 // Documentation is generated for projects defined in
 // `docsSourcesAndProjects`.
 lazy val docs = project
-  .enablePlugins(MicrositesPlugin)
   .settings(moduleName := "scalding-docs")
   .settings(sharedSettings)
   .settings(noPublishSettings)
   .settings(unidocSettings)
   .settings(ghpages.settings)
-  .settings(docSettings)
   .settings(tutScalacOptions ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
   .dependsOn(scaldingCore)
