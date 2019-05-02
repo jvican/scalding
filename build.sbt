@@ -1,6 +1,5 @@
 import AssemblyKeys._
 import ReleaseTransformations._
-import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import sbtassembly.Plugin._
 import sbtunidoc.Plugin.UnidocKeys._
@@ -678,5 +677,4 @@ lazy val docs = project
   .settings(sharedSettings)
   .settings(noPublishSettings)
   .settings(unidocSettings)
-  .settings(ghpages.settings)
   .dependsOn(scaldingCore)
