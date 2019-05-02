@@ -679,5 +679,4 @@ lazy val docs = project
   .settings(noPublishSettings)
   .settings(unidocSettings)
   .settings(ghpages.settings)
-  .settings(tutScalacOptions ~= (_.filterNot(Set("-Ywarn-unused-import", "-Ywarn-dead-code"))))
   .dependsOn(scaldingCore)
